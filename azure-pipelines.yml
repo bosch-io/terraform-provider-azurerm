@@ -7,32 +7,24 @@ name: $(Date:yyyyMMddHHss).$(Build.SourceBranchName).$(Build.SourceVersion)
 
 resources:
 - repo: self
-queue:
-  name: Hosted Ubuntu 1604
+
+pool:
+  name: custom-build-agents-dev
+
 steps:
 - bash: echo "##vso[task.setvariable variable=imagename]`date +%Y%m%d%H%M%S`.${BUILD_SOURCEBRANCHNAME}.${BUILD_SOURCEVERSION:0:7}"
   displayName: Generate imagename
 - bash: echo "##vso[task.setvariable variable=dockeroptions]-t -v $(System.DefaultWorkingDirectory):/go/src/github.com/terraform-providers/terraform-provider-azurerm -w /go/src/github.com/terraform-providers/terraform-provider-azurerm"
   displayName: Generate imagename
-
-# - script: |
-#    docker run $(dockeroptions) golang:1.11.5 \
-#    make fmt 
 - script: |
    docker run -e GOOS=linux -e GOARCH=amd64 $(dockeroptions) golang:1.11.5 \
-   go build 
-# - script: |
-#    docker run -e GOOS=windows -e GOARCH=amd64 $(dockeroptions) golang:1.11.5 \
-#    go build 
+   go build
 - script: |
    docker run $(dockeroptions) golang:1.11.5 \
    go test -v -timeout 1800s github.com/terraform-providers/terraform-provider-azurerm/azurerm -run TestAccAzureRMApplicationGateway_sslPolicy_policyType_predefined
-   
 - script: |
    mkdir artifacts
    cp terraform-provider-azurerm* artifacts
-
-
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifact: artifacts'
   inputs:
