@@ -8,7 +8,7 @@ variables:
 - name: repo
   value: terraform.providers.azurerm
 - name: release_branch
-  value: v2.14.0
+  value: v2.15.0
 - name: GO111MODULE
   value: on
 - name: GOPATH
